@@ -1,0 +1,22 @@
+###############################################
+# TITLE: Velez's Dictionary - counting distinct lexinfo:notes 
+# DESCRIPTION: Counts the numbers of distinct lexinfo:notes related to LexicalSense class items in the Velez's dictionary.
+###############################################
+
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos#>
+    PREFIX lexinfo:  <http://www.lexinfo.net/ontology/2.0/lexinfo#>
+
+# Counts the numbers of distinct lexinfo:notes related to LexicalSense class items in the Velez's dictionary.
+
+SELECT DISTINCT (count(?sense_lexinfo_note) as ?occurrences) ?sense_lexinfo_note
+    WHERE {
+    <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> 
+        lime:entry  ?lexentry .
+    ?lexentry ontolex:sense ?senseURI .
+    ?senseURI lexinfo:note ?sense_lexinfo_note .
+} order by ?sense_lexinfo_note
