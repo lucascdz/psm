@@ -1,3 +1,4 @@
+#
 # process XML alignment files and calculate kappa
 # pressupose source-language
 
