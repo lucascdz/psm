@@ -1,0 +1,19 @@
+###############################################
+# TITLE: Velez's Dictionary Assessment: counting notes
+# DESCRIPTION: Returns the number of lexinfo:note items associated to lexical senses grouped by PoS.
+###############################################
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/>
+PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+
+
+SELECT ?partofspeech (count(?lexinfo) as ?lexinfo_note)
+WHERE {
+  <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry ?lexentry .
+  ?lexentry ontolex:canonicalForm ?lemma ;
+            ontolex:sense ?sense .
+  ?sense <http://www.lexinfo.net/ontology/2.0/lexinfo#note> ?lexinfo .
+  ?lemma lila:hasPOS ?UPOS.
+  ?UPOS rdfs:label ?partofspeech .
+} group by ?partofspeech order by desc(?lexinfo_note)

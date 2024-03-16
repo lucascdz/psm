@@ -1,0 +1,55 @@
+###############################################
+# TITLE: Velez's Dictionary Assessment: wordlist vs. Lasla
+# DESCRIPTION: Counts the number of dictionary headwords included in the top 1000 commonly used lemmas in the Lasla Corpus, grouped by PoS.
+###############################################
+
+PREFIX powla: <http://purl.org/powla/powla.owl#> 
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#> 
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+PREFIX lime: <http://www.w3.org/ns/lemon/lime#> 
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>  
+
+SELECT ?partofspeech ?VelezTotal ?LaslaTotal
+WHERE 
+{ 
+  { 
+    # List the 1012 most Freq lemmas in the LASLA corpus (above 260 occurrences) 
+    SELECT ?partofspeech (count(?partofspeech) as ?VelezTotal) 
+    WHERE  
+    { 
+      { 
+        SELECT ?V_lemma ?partofspeech (count(?V_lemma) as ?LemmaTotal) 
+        WHERE 
+        { 
+          ?t a powla:Terminal ; lila:hasLemma ?V_lemma . 
+          ?t powla:hasLayer/powla:hasDocument/^powla:hasSubDocument <http://lila-erc.eu/data/corpora/Lasla/id/corpus> . 
+          ?V_lemma lila:hasPOS ?UPOS . 
+          ?UPOS rdfs:label ?partofspeech .
+          <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry ?lexentry . 
+          ?lexentry ontolex:canonicalForm ?V_lemma . 
+        } group by ?V_lemma ?partofspeech having (count(?V_lemma) > 260) 
+      } 
+    } 
+  } 
+  UNION 
+  { 
+    # List the lemmas covered by the Index Totius Artis in the 1012 most Freq lemmas in the LASLA corpus
+    SELECT ?partofspeech (count(?partofspeech) as ?LaslaTotal) 
+    WHERE  
+    { 
+      { 
+        SELECT ?pnomlemma ?partofspeech (count(?pnomlemma) as ?LemmaTotal) 
+        WHERE 
+        { 
+          ?t a powla:Terminal ; lila:hasLemma ?pnomlemma . 
+          ?t powla:hasLayer/powla:hasDocument/^powla:hasSubDocument <http://lila-erc.eu/data/corpora/Lasla/id/corpus> . 
+          ?pnomlemma rdfs:label ?lablemma . 
+          ?pnomlemma lila:hasPOS ?UPOS . 
+          ?UPOS rdfs:label ?partofspeech .
+        } group by ?pnomlemma ?partofspeech having (count(?pnomlemma) > 260) 
+      }
+    } 
+  }  
+}
+group by ?partofspeech order by ?partofspeech ?LaslaTotal

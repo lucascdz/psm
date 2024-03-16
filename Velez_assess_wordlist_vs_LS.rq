@@ -1,0 +1,52 @@
+###############################################
+# TITLE: Velez's Dictionary Assessment: wordlist vs. LS
+# DESCRIPTION: Calculates the ratio of lemmas by PoS included in the Velez's and in the Lewis and Short's headword list.
+###############################################
+
+
+PREFIX xsd:	<http://www.w3.org/2001/XMLSchema#>
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+
+SELECT ?partofspeech ?VelezIndex (xsd:decimal(10000*?VelezIndex/?VZtotal)/100 AS ?VelezIndex_pc) ?LewisShort (xsd:decimal(10000*?LewisShort/?LStotal)/100 AS ?LewisShort_pc)
+{
+  # compute lexical entries per PoS
+  {
+    SELECT ?partofspeech (count(?V_lexentry) as ?VelezIndex) (count(?LS_lexentry) as ?LewisShort)
+    {
+      {
+        {
+          <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry ?V_lexentry .
+          ?V_lexentry ontolex:canonicalForm ?V_lemma .
+          ?V_lemma lila:hasPOS ?UPOS.
+          ?UPOS rdfs:label ?partofspeech .
+        }
+      } UNION {
+        {
+          <http://lila-erc.eu/data/lexicalResources/LewisShort/Lexicon> lime:entry ?LS_lexentry .
+          ?LS_lexentry ontolex:canonicalForm ?LS_lemma .
+          ?LS_lemma lila:hasPOS ?UPOS.
+          ?UPOS rdfs:label ?partofspeech .
+        }
+      }
+    } group by ?partofspeech order by desc(?VelezIndex)
+  }
+  
+  # compute totals
+  {
+    SELECT (count(?V_lexentry) as ?VZtotal) (count(?LS_lexentry) as ?LStotal)
+    {
+      {
+        {
+          <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry ?V_lexentry .
+        }
+      } UNION {
+        {
+          <http://lila-erc.eu/data/lexicalResources/LewisShort/Lexicon> lime:entry ?LS_lexentry .
+        }
+      }
+    }
+  }
+}

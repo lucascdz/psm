@@ -1,0 +1,39 @@
+###############################################
+# TITLE: Velez's Dictionary Look-up: definition content
+# DESCRIPTION: Searches the dictionary senses for a given input string and returns the associated lexical entries.
+###############################################
+
+PREFIX lexicog: <http://www.w3.org/ns/lemon/lexicog#>
+PREFIX lex: <http://purl.org/lex#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+PREFIX lexinfo: <http://www.lexinfo.net/ontology/2.0/lexinfo#>
+PREFIX skos: <http://www.w3.org/2004/02/skos#>
+PREFIX sense: <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/id/LexicalSense/>
+
+
+# INSTRUCTION: For changing the queried word, replace 'fallar' with the desired lemma inside the string '^__$' at line 16.
+
+SELECT (?PoS as ?classe) (group_concat(distinct ?lemmaWrittenRep ; separator=", ") as ?lema) ?definition (?posdefNote as ?comentário) (?exampleText as ?exemplo) ?senseURI 
+WHERE {   
+  FILTER regex(?definition, "fal?lar")
+  <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry  ?lexentry.
+  ?lexentry ontolex:canonicalForm ?lemmaURI ;
+            ontolex:sense ?senseURI .
+  ?lemmaURI rdfs:label ?lemma ;
+            lila:hasPOS ?PoS ;
+            ontolex:writtenRep ?lemmaWrittenRep .
+  ?senseURI rdf:type ontolex:LexicalSense;
+            <http://www.w3.org/2004/02/skos#definition> ?definition .
+  optional {
+    ?senseURI lexinfo:note ?posdefNote .
+  }
+  optional {
+    ?senseURI lexicog:usageExample ?exampleURI .
+    ?exampleURI rdfs:label ?exampleText .
+  }
+}order by ?senseURI 

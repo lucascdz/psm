@@ -1,0 +1,38 @@
+###############################################
+# TITLE: Velez's Dictionary Look-up: Notes
+# DESCRIPTION: Searches the sense-related lexinfo:note values for a given input string and returns the associated lexical entries.
+###############################################
+
+PREFIX lexicog: <http://www.w3.org/ns/lemon/lexicog#>
+PREFIX lex: <http://purl.org/lex#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+PREFIX lexinfo: <http://www.lexinfo.net/ontology/2.0/lexinfo#>
+PREFIX skos: <http://www.w3.org/2004/02/skos#>
+PREFIX lemma: <http://lila-erc.eu/data/id/lemma/>
+
+# INSTRUCTION: For changing the queried string, replace 'dat' with the desired lemma inside the quotation marks "" at line 23.
+
+SELECT (group_concat(distinct ?lemmaWrittenRep ; separator=", ") as ?lema) (?definition as ?definição) (?posdefNote as ?comentário) (?exampleText as ?exemplo) ?lemmaURI
+WHERE 
+{   
+  FILTER regex(?posdefNote, "dat")
+  <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry  ?lexentry.
+  ?lexentry ontolex:canonicalForm ?lemmaURI ;
+            ontolex:sense ?senseURI .
+  ?lemmaURI rdfs:label ?lemma ;
+            lila:hasPOS lila:verb ;
+            ontolex:writtenRep ?lemmaWrittenRep .
+  ?senseURI rdf:type ontolex:LexicalSense ; 
+            skos:definition ?definition ;
+            lexinfo:note ?posdefNote .
+  optional {
+      ?senseURI lexicog:usageExample ?exampleURI .
+	  ?exampleURI rdfs:label ?exampleText .
+  }
+}
+order by ?lema
