@@ -1,0 +1,26 @@
+###############################################
+# TITLE: Velez's Dictionary: distinct sense-related notes 
+# DESCRIPTION: List verbal lemmas associated with a certain value of the property lexinfo:note related to a LexicalSense in the Velez's dictionary.
+###############################################
+
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos#>
+    PREFIX lexinfo:  <http://www.lexinfo.net/ontology/2.0/lexinfo#>
+	PREFIX lilaLemma: <http://lila-erc.eu/data/id/lemma/>
+	PREFIX lilaHypolemma: <http://lila-erc.eu/data/id/hypolemma/>
+
+#INSTRUCTION: For changing the query expression, replace the string "[Aa]liquem aliqua" with the desired one at line 20.
+
+SELECT ?lemmaURI ?lemma ?sense ?note
+WHERE {
+  FILTER regex(?note, "[Aa]liquem aliqua")
+  <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry  ?lexentry .
+  ?lexentry ontolex:sense ?senseURI ;
+            ontolex:canonicalForm ?lemmaURI .
+  ?lemmaURI rdfs:label ?lemma .
+  ?senseURI lexinfo:note ?note ;
+            rdfs:label ?sense .  
+} order by ?lemma
