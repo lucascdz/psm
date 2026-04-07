@@ -1,0 +1,35 @@
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+prefix lila: <http://lila-erc.eu/ontologies/lila/>
+prefix lime: <http://www.w3.org/ns/lemon/lime#>
+prefix marl: <http://www.gsi.dit.upm.es/ontologies/marl/ns#>
+prefix powla: <http://purl.org/powla/powla.owl#>
+prefix lila_corpora: <http://lila-erc.eu/ontologies/lila_corpora/>
+
+### CHAPTER SENTIMENT ANALYSIS: Performs lexicon-based sentiment analysis on each letter of Cicero's Letters to Atticus.
+
+
+SELECT  ?ep (SUM(?v) as ?sentVal) (COUNT(?v) as ?count) 
+((SUM(?v) / COUNT(?v)) as ?normVal)
+WHERE {
+  <http://lila-erc.eu/data/corpora/PROIEL/id/corpus/Cicero_Epistulae_ad_Atticum/CiteStructure> lila_corpora:isLayer ?lib .
+  ?lib lila_corpora:hasCitSubUnit ?ep .
+  VALUES ?lib { 
+    <http://lila-erc.eu/data/corpora/PROIEL/id/corpus/Cicero_Epistulae_ad_Atticum/CiteStructure/Liber_3>
+    <http://lila-erc.eu/data/corpora/PROIEL/id/corpus/Cicero_Epistulae_ad_Atticum/CiteStructure/Liber_4>
+  }
+  ?ep lila_corpora:hasCitSubUnit ?par .
+  ?par powla:hasChild ?token.
+  ?token lila:hasLemma ?lemma .   
+  ?lemma rdfs:label ?label .
+      VALUES ?polarity { marl:Positive marl:Negative } 
+        ?le ontolex:canonicalForm ?lemma ;
+        ontolex:sense ?sense .
+    ?sense marl:hasPolarity ?polarity ;
+       marl:polarityValue  ?v .
+    
+ 
+} group by  ?ep
+order by ?ep
+
