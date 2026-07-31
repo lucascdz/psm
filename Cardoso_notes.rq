@@ -1,0 +1,23 @@
+###############################################
+# TITLE: Cardoso's Dictionary - counting distinct skos:note first words
+# DESCRIPTION: Counts the numbers of distinct skos:note first words related to LexicalSense class items in the Cardoso's dictionary.
+###############################################
+
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos#>
+    PREFIX lexinfo:  <http://www.lexinfo.net/ontology/2.0/lexinfo#>
+
+# Counts the numbers of distinct lexinfo:notes related to LexicalSense class items in the Velez's dictionary.
+
+SELECT DISTINCT (count(?LexSense_skos_note_norm) as ?occurrences) ?LexSense_skos_note_norm
+    WHERE {
+    <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Cardoso/Lexicon> 
+        lime:entry  ?lexentry .
+    ?lexentry ontolex:sense ?senseURI .
+    ?senseURI skos:note ?LexSense_skos_note .
+  BIND(REPLACE(str(?LexSense_skos_note), "(\\w+\\.?\\s?\\-?\\w+\\.?\\s?\\-?\\w+\\.?\\s?\\-?) .*", "$1") AS ?LexSense_skos_note_norm)
+} order by desc(?occurrences)

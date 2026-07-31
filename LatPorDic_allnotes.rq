@@ -1,0 +1,59 @@
+###############################################
+# TITLE: Latin-Portuguese Dictionaries - counting notes
+# DESCRIPTION: Counts the number and percentage of lexinfo:notes and skos:notes related to Lexical Entries and Lexical Senses.
+###############################################
+
+PREFIX xsd:	<http://www.w3.org/2001/XMLSchema#>
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+PREFIX skos: <http://www.w3.org/2004/02/skos#>
+PREFIX lexinfo:  <http://www.lexinfo.net/ontology/2.0/lexinfo#>
+
+SELECT ?dictionary ?n_LexEntry ?n_LE_lexinfo_note ?pct_LE_lexinfo_note ?n_LE_skos_note ?pct_LE_skos_note ?n_LexSense ?n_LS_lexinfo_note ?pct_LS_lexinfo_note ?n_LS_skos_note ?pct_LS_skos_note 
+{
+  # count Lexical Entry notes
+  {
+    SELECT
+    ?dictionary
+	(count(?lexentry) as ?n_LexEntry)
+	(count(?LE_lexinfo_note) as ?n_LE_lexinfo_note)
+	(xsd:decimal(10000*?n_LE_lexinfo_note/?n_LexEntry)/100 AS ?pct_LE_lexinfo_note)
+	(count(?LE_skos_note) as ?n_LE_skos_note)
+	(xsd:decimal(10000*?n_LE_skos_note/?n_LexEntry)/100 AS ?pct_LE_skos_note) 
+    {
+      VALUES ?lexicon {
+        <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Cardoso/Lexicon>
+        <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon>
+        <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Fonseca/Lexicon>}
+      ?lexicon lime:entry ?lexentry ;
+               rdfs:label ?dictionary .
+      OPTIONAL {?lexentry lexinfo:note ?LE_lexinfo_note .}
+      OPTIONAL {?lexentry skos:note ?LE_skos_note .}
+    }
+  }
+  
+  # count Lexical Sense notes
+  {
+    SELECT 
+    ?dictionary 
+	(count(?lexsense) as ?n_LexSense) 
+	(count(?LS_lexinfo_note) as ?n_LS_lexinfo_note) 
+	(xsd:decimal(10000*?n_LS_lexinfo_note/?n_LexSense)/100 AS ?pct_LS_lexinfo_note) 
+	(count(?LS_skos_note) as ?n_LS_skos_note)
+	(xsd:decimal(10000*?n_LS_skos_note/?n_LexSense)/100 AS ?pct_LS_skos_note) 
+    {
+      VALUES ?lexicon {
+        <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Cardoso/Lexicon>
+        <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon>
+        <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Fonseca/Lexicon>}
+      ?lexicon lime:entry ?lexentry ;
+               rdfs:label ?dictionary .
+      ?lexentry ontolex:sense ?lexsense .  
+      OPTIONAL {?lexsense lexinfo:note ?LS_lexinfo_note .}
+      OPTIONAL {?lexsense skos:note ?LS_skos_note .}
+    }
+  }
+} order by ?dictionary

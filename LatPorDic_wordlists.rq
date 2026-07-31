@@ -1,0 +1,114 @@
+###############################################
+# TITLE: Latin-Portuguese Dictionaries: Wordlist Coverage
+# DESCRIPTION: Counts the number of dictionary headwords included in the top 3000 most frequently used lemmas in LiLa textual resources.
+# Response in 60.206 seconds: ERROR (it works if split in two parts)
+###############################################
+
+
+PREFIX powla: <http://purl.org/powla/powla.owl#> 
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#> 
+PREFIX lila: <http://lila-erc.eu/ontologies/lila/> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+PREFIX lime: <http://www.w3.org/ns/lemon/lime#> 
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>  
+
+SELECT ?partofspeech ?CorpusTotalLemmas ?CardosoTotalEntries ?VelezTotalEntries ?FonsecaTotalEntries ?LewisShortTotalEntries
+WHERE 
+{
+  { 
+    # Select the 2998 most frequently used lemmas in LiLa textual resources (above 374 occurrences, according to LiLa_count_lemma_occurrences.rq)
+    SELECT ?partofspeech (count(?partofspeech) as ?CorpusTotalLemmas) 
+    WHERE  
+    { 
+      { 
+        SELECT ?pnomlemma ?partofspeech (count(?pnomlemma) as ?CorpusTotalTokens) 
+        WHERE 
+        { 
+          ?t a powla:Terminal ; lila:hasLemma ?pnomlemma . 
+          ?pnomlemma rdfs:label ?lablemma . 
+          ?pnomlemma lila:hasPOS ?UPOS . 
+          ?UPOS rdfs:label ?partofspeech .
+        } group by ?pnomlemma ?partofspeech having (count(?pnomlemma) > 374) 
+      }
+    } group by ?partofspeech
+  }  
+
+  UNION 
+  
+  { 
+    # Counts how many entries are linked to those lemmas in Cardoso’s dictionary (grouped by part-of-speech)
+    SELECT ?partofspeech (count(?partofspeech) as ?CardosoTotalEntries) 
+    WHERE  
+    { 
+      { 
+        SELECT ?V_lemma ?partofspeech (count(?V_lemma) as ?LemmaTotal) 
+        WHERE 
+        { 
+          ?t a powla:Terminal ; lila:hasLemma ?V_lemma . 
+          ?V_lemma lila:hasPOS ?UPOS . 
+          ?UPOS rdfs:label ?partofspeech .
+          <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Cardoso/Lexicon> lime:entry ?lexentry . 
+          ?lexentry ontolex:canonicalForm ?V_lemma . 
+        } group by ?V_lemma ?partofspeech having (count(?V_lemma) > 374) 
+      } 
+    } group by ?partofspeech
+  } 
+  UNION 
+  { 
+    # Counts how many entries are linked to those lemmas in Velez’s dictionary (grouped by part-of-speech)
+    SELECT ?partofspeech (count(?partofspeech) as ?VelezTotalEntries) 
+    WHERE  
+    { 
+      { 
+        SELECT ?V_lemma ?partofspeech (count(?V_lemma) as ?LemmaTotal) 
+        WHERE 
+        { 
+          ?t a powla:Terminal ; lila:hasLemma ?V_lemma . 
+          ?V_lemma lila:hasPOS ?UPOS . 
+          ?UPOS rdfs:label ?partofspeech .
+          <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Velez/Lexicon> lime:entry ?lexentry . 
+          ?lexentry ontolex:canonicalForm ?V_lemma . 
+        } group by ?V_lemma ?partofspeech having (count(?V_lemma) > 374) 
+      } 
+    } group by ?partofspeech
+  } 
+  UNION 
+  { 
+    # Counts how many entries are linked to those lemmas in Fonseca’s dictionary (grouped by part-of-speech)
+    SELECT ?partofspeech (count(?partofspeech) as ?FonsecaTotalEntries) 
+    WHERE  
+    { 
+      { 
+        SELECT ?V_lemma ?partofspeech (count(?V_lemma) as ?LemmaTotal) 
+        WHERE 
+        { 
+          ?t a powla:Terminal ; lila:hasLemma ?V_lemma . 
+          ?V_lemma lila:hasPOS ?UPOS . 
+          ?UPOS rdfs:label ?partofspeech .
+          <http://lila-erc.eu/data/lexicalResources/LatinPortuguese/Fonseca/Lexicon> lime:entry ?lexentry . 
+          ?lexentry ontolex:canonicalForm ?V_lemma . 
+        } group by ?V_lemma ?partofspeech having (count(?V_lemma) > 374) 
+      } 
+    } group by ?partofspeech
+  } 
+  UNION 
+  { 
+    # Counts how many entries are linked to those lemmas in Lewis and Short’s dictionary (grouped by part-of-speech)
+    SELECT ?partofspeech (count(?partofspeech) as ?LewisShortTotalEntries) 
+    WHERE  
+    { 
+      { 
+        SELECT ?V_lemma ?partofspeech (count(?V_lemma) as ?LemmaTotal) 
+        WHERE 
+        { 
+          ?t a powla:Terminal ; lila:hasLemma ?V_lemma . 
+          ?V_lemma lila:hasPOS ?UPOS . 
+          ?UPOS rdfs:label ?partofspeech .
+          <http://lila-erc.eu/data/lexicalResources/LewisShort/Lexicon> lime:entry ?lexentry . 
+          ?lexentry ontolex:canonicalForm ?V_lemma . 
+        } group by ?V_lemma ?partofspeech having (count(?V_lemma) > 374) 
+      } 
+    } group by ?partofspeech
+  } 
+}
+group by ?partofspeech ?CorpusTotalLemmas order by ?partofspeech ?CorpusTotalLemmas
